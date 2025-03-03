@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -70,6 +69,16 @@ export default {
 					'charcoal': '#1C1C1C',
 					'cream': '#FFFDD0',
 					'dark': '#111111',
+				},
+				'nsibidi': {
+					'light': '#E5B27E',
+					'dark': '#8B4513',
+					'accent': '#D4AF37'
+				},
+				'benin': {
+					'bronze': '#CD7F32',
+					'gold': '#D4AF37',
+					'patina': '#316650'
 				}
 			},
 			borderRadius: {
@@ -109,6 +118,15 @@ export default {
 				'glow': {
 					'0%, 100%': { boxShadow: '0 0 5px rgba(212, 175, 55, 0.5)' },
 					'50%': { boxShadow: '0 0 20px rgba(212, 175, 55, 0.8)' }
+				},
+				'morph': {
+					'0%': { borderRadius: '60% 40% 30% 70%/60% 30% 70% 40%' },
+					'50%': { borderRadius: '30% 60% 70% 40%/50% 60% 30% 60%' },
+					'100%': { borderRadius: '60% 40% 30% 70%/60% 30% 70% 40%' }
+				},
+				'perspective-shift': {
+					'0%': { transform: 'perspective(1000px) rotateY(0deg)' },
+					'100%': { transform: 'perspective(1000px) rotateY(180deg)' }
 				}
 			},
 			animation: {
@@ -119,7 +137,14 @@ export default {
 				'fade-in-left': 'fade-in-left 0.7s ease-out',
 				'float': 'float 6s ease-in-out infinite',
 				'scale': 'scale 0.5s ease-out',
-				'glow': 'glow 2s ease-in-out infinite'
+				'glow': 'glow 2s ease-in-out infinite',
+				'morph': 'morph 8s ease-in-out infinite',
+				'perspective': 'perspective-shift 1s ease-in-out',
+				'glass-shimmer': 'shimmer 3s linear infinite'
+			},
+			backgroundImage: {
+				'nsibidi-pattern': "url('/lovable-uploads/nsibidi-pattern.svg')",
+				'benin-pattern': "url('/lovable-uploads/benin-pattern.svg')"
 			}
 		}
 	},

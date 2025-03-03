@@ -8,7 +8,6 @@ const PracticeAreas = () => {
   const scene3DRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Load Three.js from CDN
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.async = true;
@@ -26,7 +25,6 @@ const PracticeAreas = () => {
     
     const container = scene3DRef.current;
     
-    // Setup
     const scene = new window.THREE.Scene();
     const camera = new window.THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
     const renderer = new window.THREE.WebGLRenderer({ 
@@ -38,17 +36,14 @@ const PracticeAreas = () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
     
-    // Create a simple courthouse model
     const buildGroup = new window.THREE.Group();
     
-    // Base/Steps
     const baseGeometry = new window.THREE.BoxGeometry(5, 0.5, 3);
     const baseMaterial = new window.THREE.MeshStandardMaterial({ color: 0xcccccc });
     const base = new window.THREE.Mesh(baseGeometry, baseMaterial);
     base.position.y = -2;
     buildGroup.add(base);
     
-    // Pillars
     const createPillar = (x: number, z: number) => {
       const pillarGeometry = new window.THREE.CylinderGeometry(0.2, 0.2, 3, 32);
       const pillarMaterial = new window.THREE.MeshStandardMaterial({ color: 0xD4AF37 });
@@ -57,20 +52,17 @@ const PracticeAreas = () => {
       return pillar;
     };
     
-    // Front pillars
     buildGroup.add(createPillar(-1.8, 1));
     buildGroup.add(createPillar(-0.6, 1));
     buildGroup.add(createPillar(0.6, 1));
     buildGroup.add(createPillar(1.8, 1));
     
-    // Roof
     const roofGeometry = new window.THREE.BoxGeometry(5, 0.4, 3);
     const roofMaterial = new window.THREE.MeshStandardMaterial({ color: 0xeeeeee });
     const roof = new window.THREE.Mesh(roofGeometry, roofMaterial);
     roof.position.y = 1.25;
     buildGroup.add(roof);
     
-    // Triangular pediment
     const pedimentShape = new window.THREE.Shape();
     pedimentShape.moveTo(-2.5, 0);
     pedimentShape.lineTo(2.5, 0);
@@ -90,7 +82,6 @@ const PracticeAreas = () => {
     pediment.rotation.x = Math.PI / 2;
     buildGroup.add(pediment);
     
-    // Main building
     const buildingGeometry = new window.THREE.BoxGeometry(4, 2, 2);
     const buildingMaterial = new window.THREE.MeshStandardMaterial({ color: 0xf5f5f5 });
     const building = new window.THREE.Mesh(buildingGeometry, buildingMaterial);
@@ -100,7 +91,6 @@ const PracticeAreas = () => {
     
     scene.add(buildGroup);
     
-    // Lighting
     const ambientLight = new window.THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
     
@@ -112,30 +102,25 @@ const PracticeAreas = () => {
     directionalLight2.position.set(-1, 1, -2);
     scene.add(directionalLight2);
     
-    // Camera positioning
     camera.position.z = 5;
     camera.position.y = 0;
     
-    // Mouse interaction for rotation
     let mouseX = 0;
     let mouseY = 0;
     let targetRotationY = 0;
     let targetRotationX = 0;
     
     const handleMouseMove = (event: MouseEvent) => {
-      // Get mouse position relative to the container
       const rect = container.getBoundingClientRect();
       mouseX = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
       mouseY = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
       
-      // Set target rotation based on mouse position
       targetRotationY = mouseX * 0.5;
       targetRotationX = mouseY * 0.3;
     };
     
     container.addEventListener('mousemove', handleMouseMove);
     
-    // Handle window resize
     const handleResize = () => {
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
@@ -144,15 +129,12 @@ const PracticeAreas = () => {
     
     window.addEventListener('resize', handleResize);
     
-    // Animation
     const animate = () => {
       requestAnimationFrame(animate);
       
-      // Smooth rotation based on mouse position
       buildGroup.rotation.y += (targetRotationY - buildGroup.rotation.y) * 0.05;
       buildGroup.rotation.x += (targetRotationX - buildGroup.rotation.x) * 0.05;
       
-      // Add gentle floating animation
       buildGroup.position.y = Math.sin(Date.now() * 0.001) * 0.1;
       
       renderer.render(scene, camera);
@@ -160,7 +142,6 @@ const PracticeAreas = () => {
     
     animate();
     
-    // Cleanup
     return () => {
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
@@ -173,8 +154,9 @@ const PracticeAreas = () => {
 
   return (
     <section id="services" className="py-20 md:py-32 bg-law-dark relative overflow-hidden">
-      {/* Background gradient */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-law-dark to-law-charcoal opacity-80 z-0"></div>
+      
+      <div className="absolute inset-0 bg-nsibidi-pattern opacity-5 z-0"></div>
       
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
@@ -201,7 +183,7 @@ const PracticeAreas = () => {
             </div>
           </div>
           
-          <div className="lg:w-1/2 h-[400px] order-1 lg:order-2" ref={scene3DRef}>
+          <div className="lg:w-1/2 h-[400px] order-1 lg:order-2 nsibidi-border" ref={scene3DRef}>
             {/* 3D scene will be rendered here */}
           </div>
         </div>
@@ -268,17 +250,19 @@ const PracticeAreaCard = ({ icon, title, description, delay }: PracticeAreaCardP
   
   return (
     <div 
-      className="glass-card flex items-start space-x-4 group hover:border-law-gold/30 transition-all duration-300"
+      className="glass-card benin-accent animate-morph"
       ref={cardRef as React.RefObject<HTMLDivElement>}
     >
-      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-law-gold/20 flex items-center justify-center group-hover:bg-law-gold/30 transition-all duration-300">
-        <div className="text-law-gold">
-          {icon}
+      <div className="flex items-start space-x-4 relative z-10">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-benin-gold/20 flex items-center justify-center group-hover:bg-benin-gold/30 transition-all duration-300">
+          <div className="text-benin-gold">
+            {icon}
+          </div>
         </div>
-      </div>
-      <div>
-        <h4 className="text-white font-medium mb-1 group-hover:text-law-gold transition-colors duration-300">{title}</h4>
-        <p className="text-white/70 text-sm">{description}</p>
+        <div>
+          <h4 className="text-white font-medium mb-1 group-hover:text-benin-gold transition-colors duration-300">{title}</h4>
+          <p className="text-white/70 text-sm">{description}</p>
+        </div>
       </div>
     </div>
   );
