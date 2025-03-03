@@ -101,7 +101,7 @@ const Hero = () => {
     
     // Animation
     const animate = () => {
-      const animationId = requestAnimationFrame(animate);
+      requestAnimationFrame(animate);
       
       targetX = mouseX * 0.1;
       targetY = mouseY * 0.1;

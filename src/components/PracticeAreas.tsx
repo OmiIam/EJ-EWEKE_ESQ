@@ -1,4 +1,3 @@
-
 import { useScrollAnimation } from '@/hooks/use-scroll-animation';
 import { Building2, BookText, Landmark, Users, Briefcase, GraduationCap, Scale, Globe } from 'lucide-react';
 import { useEffect, useRef } from 'react';
