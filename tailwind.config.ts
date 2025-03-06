@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -79,6 +80,21 @@ export default {
 					'bronze': '#CD7F32',
 					'gold': '#D4AF37',
 					'patina': '#316650'
+				},
+				'adire': {
+					'blue': '#003366',
+					'indigo': '#4B0082',
+					'white': '#F5F5F5'
+				},
+				'akwete': {
+					'red': '#B22222',
+					'black': '#111111',
+					'tan': '#D2B48C'
+				},
+				'african': {
+					'gold': '#FFD700',
+					'amber': '#FFAA00',
+					'earth': '#CD853F'
 				}
 			},
 			borderRadius: {
@@ -144,7 +160,9 @@ export default {
 			},
 			backgroundImage: {
 				'nsibidi-pattern': "url('/lovable-uploads/nsibidi-pattern.svg')",
-				'benin-pattern': "url('/lovable-uploads/benin-pattern.svg')"
+				'benin-pattern': "url('/lovable-uploads/benin-pattern.svg')",
+				'adire-pattern': "url('/lovable-uploads/adire-pattern.svg')",
+				'akwete-pattern': "url('/lovable-uploads/akwete-pattern.svg')"
 			}
 		}
 	},

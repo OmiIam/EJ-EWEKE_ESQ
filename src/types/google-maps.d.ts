@@ -1,64 +1,40 @@
 
-declare namespace google.maps {
-  interface MapOptions {
-    center: LatLng | LatLngLiteral;
-    zoom: number;
-    styles?: any[];
-    mapTypeId?: string;
-    disableDefaultUI?: boolean;
-  }
+declare namespace google {
+  namespace maps {
+    class Map {
+      constructor(mapDiv: Element, opts?: MapOptions);
+      setCenter(latLng: LatLng): void;
+      setZoom(zoom: number): void;
+    }
 
-  interface MarkerOptions {
-    position: LatLng | LatLngLiteral;
-    map?: Map;
-    title?: string;
-    icon?: string | Symbol;
-    animation?: any;
-  }
+    class LatLng {
+      constructor(lat: number, lng: number);
+      lat(): number;
+      lng(): number;
+    }
 
-  interface InfoWindowOptions {
-    content: string;
-    position?: LatLng | LatLngLiteral;
-  }
+    class Marker {
+      constructor(opts: MarkerOptions);
+      setMap(map: Map): void;
+    }
 
-  interface Symbol {
-    path: any;
-    fillColor: string;
-    fillOpacity: number;
-    strokeColor: string;
-    strokeWeight: number;
-    scale: number;
-  }
+    interface MapOptions {
+      center?: LatLng;
+      zoom?: number;
+      styles?: any[];
+      disableDefaultUI?: boolean;
+      zoomControl?: boolean;
+      scrollwheel?: boolean;
+      mapTypeControl?: boolean;
+      streetViewControl?: boolean;
+      fullscreenControl?: boolean;
+    }
 
-  class SymbolPath {
-    static CIRCLE: number;
-    static FORWARD_CLOSED_ARROW: number;
-    static FORWARD_OPEN_ARROW: number;
-    static BACKWARD_CLOSED_ARROW: number;
-    static BACKWARD_OPEN_ARROW: number;
-  }
-
-  class Animation {
-    static BOUNCE: number;
-    static DROP: number;
-  }
-
-  class InfoWindow {
-    constructor(opts?: InfoWindowOptions);
-    open(map: Map, anchor?: MVCObject): void;
-    close(): void;
-  }
-
-  class MVCObject {
-    addListener(eventName: string, handler: Function): MapsEventListener;
-  }
-
-  interface MapsEventListener {
-    remove(): void;
-  }
-
-  class Marker extends MVCObject {
-    constructor(opts: MarkerOptions);
-    setAnimation(animation: number | null): void;
+    interface MarkerOptions {
+      position: LatLng;
+      map?: Map;
+      title?: string;
+      icon?: string;
+    }
   }
 }

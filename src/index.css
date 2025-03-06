@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -47,7 +48,8 @@
   }
 
   body {
-    @apply bg-law-dark text-foreground font-montserrat overflow-x-hidden;
+    @apply bg-gradient-to-b from-black to-law-navy text-foreground font-montserrat overflow-x-hidden;
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -89,6 +91,47 @@
   .benin-accent {
     @apply border-benin-gold/30 bg-gradient-to-r from-benin-bronze/10 to-benin-gold/10
     hover:from-benin-bronze/20 hover:to-benin-gold/20 transition-all duration-500;
+  }
+
+  .african-pattern {
+    @apply relative;
+  }
+  
+  .african-pattern::before {
+    content: '';
+    @apply absolute inset-0 bg-adire-pattern opacity-5 pointer-events-none z-0;
+    background-size: 300px 300px;
+  }
+
+  .akwete-pattern {
+    @apply relative;
+  }
+  
+  .akwete-pattern::before {
+    content: '';
+    @apply absolute inset-0 bg-akwete-pattern opacity-10 pointer-events-none z-0;
+    background-size: 200px 200px;
+  }
+
+  .gold-gradient-button {
+    @apply relative overflow-hidden;
+    background: linear-gradient(90deg, #FFD700 0%, #FFAA00 100%);
+    transition: all 0.3s ease;
+  }
+  
+  .gold-gradient-button:hover {
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  }
+  
+  .gold-gradient-button::before {
+    content: '';
+    @apply absolute top-0 left-[-100%] w-full h-full;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+    transition: all 0.6s ease;
+  }
+  
+  .gold-gradient-button:hover::before {
+    left: 100%;
   }
 
   .section-title {
