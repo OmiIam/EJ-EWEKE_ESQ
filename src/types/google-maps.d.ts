@@ -1,36 +1,64 @@
 
-declare interface Window {
-  google: any;
-  initMap: () => void;
-}
-
 declare namespace google.maps {
-  class Map {
-    constructor(element: HTMLElement, options?: MapOptions);
-  }
-  
   interface MapOptions {
-    center: LatLngLiteral;
+    center: LatLng | LatLngLiteral;
     zoom: number;
     styles?: any[];
+    mapTypeId?: string;
     disableDefaultUI?: boolean;
-    [key: string]: any;
   }
-  
-  interface LatLngLiteral {
-    lat: number;
-    lng: number;
-  }
-  
-  class Marker {
-    constructor(options: MarkerOptions);
-  }
-  
+
   interface MarkerOptions {
-    position: LatLngLiteral;
-    map: Map;
+    position: LatLng | LatLngLiteral;
+    map?: Map;
     title?: string;
-    icon?: string;
-    [key: string]: any;
+    icon?: string | Symbol;
+    animation?: any;
+  }
+
+  interface InfoWindowOptions {
+    content: string;
+    position?: LatLng | LatLngLiteral;
+  }
+
+  interface Symbol {
+    path: any;
+    fillColor: string;
+    fillOpacity: number;
+    strokeColor: string;
+    strokeWeight: number;
+    scale: number;
+  }
+
+  class SymbolPath {
+    static CIRCLE: number;
+    static FORWARD_CLOSED_ARROW: number;
+    static FORWARD_OPEN_ARROW: number;
+    static BACKWARD_CLOSED_ARROW: number;
+    static BACKWARD_OPEN_ARROW: number;
+  }
+
+  class Animation {
+    static BOUNCE: number;
+    static DROP: number;
+  }
+
+  class InfoWindow {
+    constructor(opts?: InfoWindowOptions);
+    open(map: Map, anchor?: MVCObject): void;
+    close(): void;
+  }
+
+  class MVCObject {
+    addListener(eventName: string, handler: Function): MapsEventListener;
+  }
+
+  interface MapsEventListener {
+    remove(): void;
+  }
+
+  class Marker extends MVCObject {
+    constructor(opts: MarkerOptions);
+    setAnimation(animation: number | null): void;
   }
 }

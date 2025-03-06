@@ -29,64 +29,135 @@ const PracticeAreas = () => {
     const camera = new window.THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
     const renderer = new window.THREE.WebGLRenderer({ 
       alpha: true, 
-      antialias: true 
+      antialias: true,
+      logarithmicDepthBuffer: true
     });
     
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = window.THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
     
     const buildGroup = new window.THREE.Group();
     
-    const baseGeometry = new window.THREE.BoxGeometry(5, 0.5, 3);
-    const baseMaterial = new window.THREE.MeshStandardMaterial({ color: 0xcccccc });
+    const baseGeometry = new window.THREE.BoxGeometry(7, 0.5, 5);
+    const baseMaterial = new window.THREE.MeshPhysicalMaterial({ 
+      color: 0xcccccc,
+      metalness: 0.2,
+      roughness: 0.1,
+      clearcoat: 0.3,
+      clearcoatRoughness: 0.2
+    });
     const base = new window.THREE.Mesh(baseGeometry, baseMaterial);
+    base.castShadow = true;
+    base.receiveShadow = true;
     base.position.y = -2;
     buildGroup.add(base);
     
-    const createPillar = (x: number, z: number) => {
-      const pillarGeometry = new window.THREE.CylinderGeometry(0.2, 0.2, 3, 32);
-      const pillarMaterial = new window.THREE.MeshStandardMaterial({ color: 0xD4AF37 });
+    const createDetailedPillar = (x: number, z: number) => {
+      const pillarGroup = new window.THREE.Group();
+      
+      const segments = 32;
+      const pillarGeometry = new window.THREE.CylinderGeometry(0.25, 0.3, 4, segments);
+      const pillarMaterial = new window.THREE.MeshPhysicalMaterial({ 
+        color: 0xD4AF37,
+        metalness: 0.3,
+        roughness: 0.2,
+        clearcoat: 0.4
+      });
       const pillar = new window.THREE.Mesh(pillarGeometry, pillarMaterial);
-      pillar.position.set(x, -0.25, z);
-      return pillar;
+      pillar.castShadow = true;
+      
+      for (let i = 0; i < segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        const flutingGeometry = new window.THREE.BoxGeometry(0.02, 3.5, 0.02);
+        const fluting = new window.THREE.Mesh(flutingGeometry, pillarMaterial);
+        const radius = 0.28;
+        fluting.position.x = Math.cos(angle) * radius;
+        fluting.position.z = Math.sin(angle) * radius;
+        pillar.add(fluting);
+      }
+      
+      const capitalGeometry = new window.THREE.CylinderGeometry(0.4, 0.3, 0.3, segments);
+      const capital = new window.THREE.Mesh(capitalGeometry, pillarMaterial);
+      capital.position.y = 2;
+      pillar.add(capital);
+      
+      const baseGeometry = new window.THREE.CylinderGeometry(0.35, 0.4, 0.3, segments);
+      const base = new window.THREE.Mesh(baseGeometry, pillarMaterial);
+      base.position.y = -2;
+      pillar.add(base);
+      
+      pillarGroup.add(pillar);
+      pillarGroup.position.set(x, -0.25, z);
+      return pillarGroup;
     };
     
-    buildGroup.add(createPillar(-1.8, 1));
-    buildGroup.add(createPillar(-0.6, 1));
-    buildGroup.add(createPillar(0.6, 1));
-    buildGroup.add(createPillar(1.8, 1));
+    const pillarPositions = [
+      [-2.5, 1.5], [-0.8, 1.5], [0.8, 1.5], [2.5, 1.5],
+      [-2.5, -1.5], [-0.8, -1.5], [0.8, -1.5], [2.5, -1.5]
+    ];
     
-    const roofGeometry = new window.THREE.BoxGeometry(5, 0.4, 3);
-    const roofMaterial = new window.THREE.MeshStandardMaterial({ color: 0xeeeeee });
-    const roof = new window.THREE.Mesh(roofGeometry, roofMaterial);
-    roof.position.y = 1.25;
-    buildGroup.add(roof);
+    pillarPositions.forEach(([x, z]) => {
+      buildGroup.add(createDetailedPillar(x, z));
+    });
+    
+    const roofGroup = new window.THREE.Group();
+    
+    const mainRoofGeometry = new window.THREE.BoxGeometry(7.5, 0.4, 5.5);
+    const roofMaterial = new window.THREE.MeshPhysicalMaterial({ 
+      color: 0xeeeeee,
+      metalness: 0.1,
+      roughness: 0.2
+    });
+    const mainRoof = new window.THREE.Mesh(mainRoofGeometry, roofMaterial);
+    mainRoof.position.y = 2;
+    mainRoof.castShadow = true;
+    roofGroup.add(mainRoof);
     
     const pedimentShape = new window.THREE.Shape();
-    pedimentShape.moveTo(-2.5, 0);
-    pedimentShape.lineTo(2.5, 0);
-    pedimentShape.lineTo(0, 1);
-    pedimentShape.lineTo(-2.5, 0);
+    pedimentShape.moveTo(-3.75, 0);
+    pedimentShape.lineTo(3.75, 0);
+    pedimentShape.lineTo(0, 1.5);
+    pedimentShape.lineTo(-3.75, 0);
     
     const extrudeSettings = {
       steps: 1,
-      depth: 2,
-      bevelEnabled: false,
+      depth: 1,
+      bevelEnabled: true,
+      bevelThickness: 0.1,
+      bevelSize: 0.1,
+      bevelSegments: 3
     };
     
     const pedimentGeometry = new window.THREE.ExtrudeGeometry(pedimentShape, extrudeSettings);
-    const pedimentMaterial = new window.THREE.MeshStandardMaterial({ color: 0xD4AF37 });
+    const pedimentMaterial = new window.THREE.MeshPhysicalMaterial({ 
+      color: 0xD4AF37,
+      metalness: 0.3,
+      roughness: 0.2,
+      clearcoat: 0.4
+    });
     const pediment = new window.THREE.Mesh(pedimentGeometry, pedimentMaterial);
-    pediment.position.set(0, 1.45, -0.5);
+    pediment.position.set(0, 2.2, -2);
     pediment.rotation.x = Math.PI / 2;
-    buildGroup.add(pediment);
+    pediment.castShadow = true;
+    roofGroup.add(pediment);
     
-    const buildingGeometry = new window.THREE.BoxGeometry(4, 2, 2);
-    const buildingMaterial = new window.THREE.MeshStandardMaterial({ color: 0xf5f5f5 });
+    buildGroup.add(roofGroup);
+    
+    const buildingGeometry = new window.THREE.BoxGeometry(6, 3.5, 4);
+    const buildingMaterial = new window.THREE.MeshPhysicalMaterial({ 
+      color: 0xf5f5f5,
+      metalness: 0.1,
+      roughness: 0.3,
+      clearcoat: 0.2
+    });
     const building = new window.THREE.Mesh(buildingGeometry, buildingMaterial);
     building.position.y = 0;
     building.position.z = -0.2;
+    building.castShadow = true;
+    building.receiveShadow = true;
     buildGroup.add(building);
     
     scene.add(buildGroup);
@@ -94,16 +165,23 @@ const PracticeAreas = () => {
     const ambientLight = new window.THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
     
-    const directionalLight1 = new window.THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight1.position.set(1, 2, 3);
-    scene.add(directionalLight1);
+    const mainLight = new window.THREE.DirectionalLight(0xffffff, 1);
+    mainLight.position.set(5, 5, 5);
+    mainLight.castShadow = true;
+    mainLight.shadow.mapSize.width = 2048;
+    mainLight.shadow.mapSize.height = 2048;
+    scene.add(mainLight);
     
-    const directionalLight2 = new window.THREE.DirectionalLight(0xD4AF37, 0.3);
-    directionalLight2.position.set(-1, 1, -2);
-    scene.add(directionalLight2);
+    const fillLight = new window.THREE.DirectionalLight(0xD4AF37, 0.3);
+    fillLight.position.set(-5, 3, -5);
+    scene.add(fillLight);
     
-    camera.position.z = 5;
-    camera.position.y = 0;
+    const rimLight = new window.THREE.DirectionalLight(0xffffff, 0.2);
+    rimLight.position.set(0, -5, 0);
+    scene.add(rimLight);
+    
+    camera.position.set(8, 4, 8);
+    camera.lookAt(0, 0, 0);
     
     let mouseX = 0;
     let mouseY = 0;

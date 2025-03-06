@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
@@ -27,90 +26,170 @@ const Hero = () => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
     
-    // Setup
     const scene = new window.THREE.Scene();
     const camera = new window.THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
     const renderer = new window.THREE.WebGLRenderer({ 
       canvas, 
       alpha: true, 
-      antialias: true 
+      antialias: true,
+      logarithmicDepthBuffer: true
     });
     
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    // Create particles
+    // Create enhanced particles with depth and glow
     const particlesGeometry = new window.THREE.BufferGeometry();
-    const count = 2000;
+    const count = 3000;
     
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
     
     for (let i = 0; i < count * 3; i += 3) {
-      // Positions (slightly behind camera and more to the bottom right)
-      positions[i] = (Math.random() - 0.5) * 10;
-      positions[i + 1] = (Math.random() - 0.5) * 10 - 1;
-      positions[i + 2] = (Math.random() - 0.5) * 10 - 3;
+      // Create a spiral pattern
+      const radius = Math.random() * 5 + 3;
+      const angle = (i / count) * Math.PI * 20;
+      const y = (Math.random() - 0.5) * 10;
       
-      // Gold color with variations
-      colors[i] = 0.83 + Math.random() * 0.17; // R (gold)
-      colors[i + 1] = 0.68 + Math.random() * 0.12; // G (gold)
-      colors[i + 2] = 0.21 + Math.random() * 0.09; // B (gold)
+      positions[i] = Math.cos(angle) * radius;
+      positions[i + 1] = y;
+      positions[i + 2] = Math.sin(angle) * radius;
+      
+      // Gold color variations
+      colors[i] = 0.83 + Math.random() * 0.17;
+      colors[i + 1] = 0.68 + Math.random() * 0.12;
+      colors[i + 2] = 0.21 + Math.random() * 0.09;
+      
+      // Varied sizes for depth
+      sizes[i / 3] = Math.random() * 0.1 + 0.02;
     }
     
     particlesGeometry.setAttribute('position', new window.THREE.BufferAttribute(positions, 3));
     particlesGeometry.setAttribute('color', new window.THREE.BufferAttribute(colors, 3));
+    particlesGeometry.setAttribute('size', new window.THREE.BufferAttribute(sizes, 1));
     
-    const particlesMaterial = new window.THREE.PointsMaterial({
-      size: 0.02,
-      sizeAttenuation: true,
+    // Create custom shader material for enhanced particles
+    const particlesMaterial = new window.THREE.ShaderMaterial({
       transparent: true,
-      alphaMap: null,
       depthWrite: false,
       blending: window.THREE.AdditiveBlending,
-      vertexColors: true
+      vertexColors: true,
+      uniforms: {
+        time: { value: 0 },
+        pixelRatio: { value: renderer.getPixelRatio() }
+      },
+      vertexShader: `
+        attribute float size;
+        varying vec3 vColor;
+        uniform float time;
+        
+        void main() {
+          vColor = color;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = size * 1500.0 / -mvPosition.z;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        
+        void main() {
+          float dist = length(gl_PointCoord - vec2(0.5));
+          if (dist > 0.5) discard;
+          
+          float alpha = 1.0 - smoothstep(0.4, 0.5, dist);
+          gl_FragColor = vec4(vColor, alpha);
+        }
+      `
     });
     
     const particles = new window.THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);
     
-    // Camera positioning
+    // Create floating Nigerian symbols
+    const symbolsGroup = new window.THREE.Group();
+    const symbolGeometries = [
+      new window.THREE.TorusKnotGeometry(0.3, 0.1, 64, 8),
+      new window.THREE.IcosahedronGeometry(0.4, 1),
+      new window.THREE.OctahedronGeometry(0.3, 0)
+    ];
+    
+    for (let i = 0; i < 5; i++) {
+      const geometry = symbolGeometries[Math.floor(Math.random() * symbolGeometries.length)];
+      const material = new window.THREE.MeshPhysicalMaterial({
+        color: 0xD4AF37,
+        metalness: 0.7,
+        roughness: 0.2,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.4
+      });
+      
+      const symbol = new window.THREE.Mesh(geometry, material);
+      symbol.position.set(
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 10
+      );
+      symbolsGroup.add(symbol);
+    }
+    
+    scene.add(symbolsGroup);
+    
+    // Add lighting
+    const ambientLight = new window.THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+    
+    const directionalLight = new window.THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+    
+    const goldLight = new window.THREE.PointLight(0xD4AF37, 1, 10);
+    goldLight.position.set(-2, 2, 2);
+    scene.add(goldLight);
+    
     camera.position.z = 5;
     
-    // Mouse interaction
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-    
-    const handleMouseMove = (event: MouseEvent) => {
-      mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-      mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    
-    // Handle window resize
-    const handleResize = () => {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
     // Animation
+    const clock = new window.THREE.Clock();
+    
     const animate = () => {
-      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
       
-      targetX = mouseX * 0.1;
-      targetY = mouseY * 0.1;
+      // Update particle material time uniform
+      particlesMaterial.uniforms.time.value = elapsedTime;
       
-      particles.rotation.y += 0.002;
-      particles.rotation.x += 0.001;
+      // Rotate particles
+      particles.rotation.y = elapsedTime * 0.05;
       
-      particles.rotation.y += (targetX - particles.rotation.y) * 0.05;
-      particles.rotation.x += (targetY - particles.rotation.x) * 0.05;
+      // Animate symbols
+      symbolsGroup.children.forEach((symbol, i) => {
+        symbol.rotation.x = elapsedTime * 0.2 + i;
+        symbol.rotation.y = elapsedTime * 0.3 + i;
+        symbol.position.y = Math.sin(elapsedTime + i) * 0.5;
+      });
+      
+      // Mouse interaction
+      let mouseX = 0;
+      let mouseY = 0;
+      let targetX = 0;
+      let targetY = 0;
+      
+      const handleMouseMove = (event: MouseEvent) => {
+        mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+      };
+      
+      window.addEventListener('mousemove', handleMouseMove);
+      
+      // Handle window resize
+      const handleResize = () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      };
+      
+      window.addEventListener('resize', handleResize);
       
       renderer.render(scene, camera);
     };
